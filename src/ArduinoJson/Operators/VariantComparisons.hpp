@@ -13,10 +13,10 @@ struct Comparer;
 
 template <typename T>
 struct Comparer<T, typename enable_if<IsString<T>::value>::type> {
-  bool result;
   T comparand;
+  bool result;
 
-  explicit Comparer(T value) : comparand(value) {}
+  explicit Comparer(T value) : comparand(value), result(false) {}
 
   void visitArray(const CollectionData &) {}
   void visitObject(const CollectionData &) {}
@@ -28,15 +28,17 @@ struct Comparer<T, typename enable_if<IsString<T>::value>::type> {
   void visitNegativeInteger(UInt) {}
   void visitPositiveInteger(UInt) {}
   void visitBoolean(bool) {}
-  void visitNull() {}
+  void visitNull() {
+    result = adaptString(comparand).isNull();
+  }
 };
 
 template <typename T>
 struct ArithmeticComparer {
-  bool result;
   T comparand;
+  bool result;
 
-  explicit ArithmeticComparer(T value) : comparand(value) {}
+  explicit ArithmeticComparer(T value) : comparand(value), result(false) {}
 
   void visitArray(const CollectionData &) {}
   void visitObject(const CollectionData &) {}
@@ -114,7 +116,9 @@ class VariantComparisons {
   template <typename T>
   friend typename enable_if<is_simple_value<T>::value, bool>::type operator==(
       TVariant lhs, const T &rhs) {
-    return lhs.template as<T>() == rhs;
+    ArithmeticComparer<T> comparer(rhs);
+    lhs.accept(comparer);
+    return comparer.result;
   }
 
   // const char* != TVariant
@@ -149,14 +153,14 @@ class VariantComparisons {
   template <typename T>
   friend typename enable_if<is_simple_value<T>::value, bool>::type operator!=(
       const T &lhs, TVariant rhs) {
-    return lhs != rhs.template as<T>();
+    return !operator==(lhs, rhs);
   }
 
   // TVariant != bool/int/float
   template <typename T>
   friend typename enable_if<is_simple_value<T>::value, bool>::type operator!=(
       TVariant lhs, const T &rhs) {
-    return lhs.template as<T>() != rhs;
+    return !operator==(lhs, rhs);
   }
 
   // bool/int/float < TVariant
