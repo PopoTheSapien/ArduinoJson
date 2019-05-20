@@ -7,6 +7,30 @@
 #include "../Variant/VariantRef.hpp"
 
 namespace ARDUINOJSON_NAMESPACE {
+
+template <typename T, typename Enable = void>
+struct Comparer;
+
+template <typename T>
+struct Comparer<T, typename enable_if<IsString<T>::value>::type> {
+  bool result;
+  T comparand;
+
+  explicit Comparer(T value) : comparand(value) {}
+
+  void visitArray(const CollectionData &) {}
+  void visitObject(const CollectionData &) {}
+  void visitFloat(Float) {}
+  void visitString(const char *value) {
+    result = adaptString(comparand).equals(value);
+  }
+  void visitRawJson(const char *, size_t) {}
+  void visitNegativeInteger(UInt) {}
+  void visitPositiveInteger(UInt) {}
+  void visitBoolean(bool) {}
+  void visitNull() {}
+};
+
 template <typename T>
 struct is_simple_value {
   static const bool value = is_integral<T>::value ||
@@ -21,28 +45,36 @@ class VariantComparisons {
   template <typename T>
   friend typename enable_if<IsString<T *>::value, bool>::type operator==(
       T *lhs, TVariant rhs) {
-    return adaptString(lhs).equals(rhs.template as<const char *>());
+    Comparer<T *> comparer(lhs);
+    rhs.accept(comparer);
+    return comparer.result;
   }
 
   // std::string == TVariant
   template <typename T>
   friend typename enable_if<IsString<T>::value, bool>::type operator==(
       const T &lhs, TVariant rhs) {
-    return adaptString(lhs).equals(rhs.template as<const char *>());
+    Comparer<const T &> comparer(lhs);
+    rhs.accept(comparer);
+    return comparer.result;
   }
 
   // TVariant == const char*
   template <typename T>
   friend typename enable_if<IsString<T *>::value, bool>::type operator==(
       TVariant lhs, T *rhs) {
-    return adaptString(rhs).equals(lhs.template as<const char *>());
+    Comparer<T *> comparer(rhs);
+    lhs.accept(comparer);
+    return comparer.result;
   }
 
   // TVariant == std::string
   template <typename T>
   friend typename enable_if<IsString<T>::value, bool>::type operator==(
       TVariant lhs, const T &rhs) {
-    return adaptString(rhs).equals(lhs.template as<const char *>());
+    Comparer<const T &> comparer(rhs);
+    lhs.accept(comparer);
+    return comparer.result;
   }
 
   // bool/int/float == TVariant
@@ -63,28 +95,28 @@ class VariantComparisons {
   template <typename T>
   friend typename enable_if<IsString<T *>::value, bool>::type operator!=(
       T *lhs, TVariant rhs) {
-    return !adaptString(lhs).equals(rhs.template as<const char *>());
+    return !operator==(lhs, rhs);
   }
 
   // std::string != TVariant
   template <typename T>
   friend typename enable_if<IsString<T>::value, bool>::type operator!=(
       const T &lhs, TVariant rhs) {
-    return !adaptString(lhs).equals(rhs.template as<const char *>());
+    return !operator==(lhs, rhs);
   }
 
   // TVariant != const char*
   template <typename T>
   friend typename enable_if<IsString<T *>::value, bool>::type operator!=(
       TVariant lhs, T *rhs) {
-    return !adaptString(rhs).equals(lhs.template as<const char *>());
+    return !operator==(lhs, rhs);
   }
 
   // TVariant != std::string
   template <typename T>
   friend typename enable_if<IsString<T>::value, bool>::type operator!=(
       TVariant lhs, const T &rhs) {
-    return !adaptString(rhs).equals(lhs.template as<const char *>());
+    return !operator==(lhs, rhs);
   }
 
   // bool/int/float != TVariant

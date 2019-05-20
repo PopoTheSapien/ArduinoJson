@@ -338,22 +338,13 @@ TEST_CASE("JsonVariant comparisons") {
     REQUIRE_FALSE(variant1 == variant3);
   }
 
-  // SECTION("VariantsOfDifferentTypes") {
-  //   DynamicJsonDocument doc1(4096);
-  //   JsonObject obj = doc1.to<JsonObject>();
+  SECTION("Compare variant containing a string with an integer") {
+    variant1.set("hello");
 
-  //   DynamicJsonDocument doc2(4096);
-  //   JsonArray arr = doc2.to<JsonArray>();
-  //   JsonVariant variants[] = {
-  //       true, 42, 666.667, "hello", arr, obj,
-  //   };
-  //   size_t n = sizeof(variants) / sizeof(variants[0]);
+    REQUIRE(variant1 != 0);
+    REQUIRE_FALSE(variant1 == 0);
 
-  //   for (size_t i = 0; i < n; i++) {
-  //     for (size_t j = i + 1; j < n; j++) {
-  //       REQUIRE(variants[i] != variants[j]);
-  //       REQUIRE_FALSE(variants[i] == variants[j]);
-  //     }
-  //   }
-  // }
+    REQUIRE(0 != variant1);
+    REQUIRE_FALSE(0 == variant1);
+  }
 }
