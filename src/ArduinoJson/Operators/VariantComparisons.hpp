@@ -32,6 +32,30 @@ struct Comparer<T, typename enable_if<IsString<T>::value>::type> {
 };
 
 template <typename T>
+struct ArithmeticComparer {
+  bool result;
+  T comparand;
+
+  explicit ArithmeticComparer(T value) : comparand(value) {}
+
+  void visitArray(const CollectionData &) {}
+  void visitObject(const CollectionData &) {}
+  void visitFloat(Float value) {
+    result = value == comparand;
+  }
+  void visitString(const char *) {}
+  void visitRawJson(const char *, size_t) {}
+  void visitNegativeInteger(UInt value) {
+    result = !(comparand + static_cast<T>(value));
+  }
+  void visitPositiveInteger(UInt value) {
+    result = comparand == static_cast<T>(value);
+  }
+  void visitBoolean(bool) {}
+  void visitNull() {}
+};
+
+template <typename T>
 struct is_simple_value {
   static const bool value = is_integral<T>::value ||
                             is_floating_point<T>::value ||
@@ -81,7 +105,9 @@ class VariantComparisons {
   template <typename T>
   friend typename enable_if<is_simple_value<T>::value, bool>::type operator==(
       const T &lhs, TVariant rhs) {
-    return lhs == rhs.template as<T>();
+    ArithmeticComparer<T> comparer(lhs);
+    rhs.accept(comparer);
+    return comparer.result;
   }
 
   // TVariant == bool/int/float
