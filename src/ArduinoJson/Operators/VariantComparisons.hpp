@@ -34,24 +34,29 @@ struct Comparer<T, typename enable_if<IsString<T>::value>::type> {
 };
 
 template <typename T>
+int8_t sign(const T &value) {
+  return value < 0 ? -1 : value > 0 ? 1 : 0;
+}
+
+template <typename T>
 struct ArithmeticComparer {
   T comparand;
-  bool result;
+  int8_t result;
 
-  explicit ArithmeticComparer(T value) : comparand(value), result(false) {}
+  explicit ArithmeticComparer(T value) : comparand(value), result(1) {}
 
   void visitArray(const CollectionData &) {}
   void visitObject(const CollectionData &) {}
   void visitFloat(Float value) {
-    result = value == comparand;
+    result = sign(value - comparand);
   }
   void visitString(const char *) {}
   void visitRawJson(const char *, size_t) {}
   void visitNegativeInteger(UInt value) {
-    result = !(comparand + static_cast<T>(value));
+    result = sign(-static_cast<T>(value) - comparand);
   }
   void visitPositiveInteger(UInt value) {
-    result = comparand == static_cast<T>(value);
+    result = sign(static_cast<T>(value) - comparand);
   }
   void visitBoolean(bool) {}
   void visitNull() {}
@@ -109,7 +114,7 @@ class VariantComparisons {
       const T &lhs, TVariant rhs) {
     ArithmeticComparer<T> comparer(lhs);
     rhs.accept(comparer);
-    return comparer.result;
+    return comparer.result == 0;
   }
 
   // TVariant == bool/int/float
@@ -118,7 +123,7 @@ class VariantComparisons {
       TVariant lhs, const T &rhs) {
     ArithmeticComparer<T> comparer(rhs);
     lhs.accept(comparer);
-    return comparer.result;
+    return comparer.result == 0;
   }
 
   // const char* != TVariant

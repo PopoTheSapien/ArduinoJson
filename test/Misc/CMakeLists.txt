@@ -10,6 +10,7 @@ add_executable(MiscTests
 	StringWriter.cpp
 	TypeTraits.cpp
 	unsigned_char.cpp
+	VariantComparer.cpp
 	version.cpp
 )
 

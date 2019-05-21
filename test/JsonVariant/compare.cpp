@@ -338,13 +338,144 @@ TEST_CASE("JsonVariant comparisons") {
     REQUIRE_FALSE(variant1 == variant3);
   }
 
-  SECTION("Compare variant containing a string with an integer") {
+  SECTION("Variant contains a string") {
     variant1.set("hello");
 
-    REQUIRE(variant1 != 0);
-    REQUIRE_FALSE(variant1 == 0);
+    SECTION("Compare with an integer") {
+      REQUIRE(variant1 != 42);
+      REQUIRE_FALSE(variant1 == 42);
 
-    REQUIRE(0 != variant1);
-    REQUIRE_FALSE(0 == variant1);
+      REQUIRE(42 != variant1);
+      REQUIRE_FALSE(42 == variant1);
+    }
+
+    SECTION("Compare with NULL") {
+      REQUIRE(variant1 != NULL);
+      REQUIRE_FALSE(variant1 == NULL);
+
+      REQUIRE(NULL != variant1);
+      REQUIRE_FALSE(NULL == variant1);
+    }
+
+    SECTION("Compare with a different string") {
+      REQUIRE(variant1 != "world");
+      REQUIRE_FALSE(variant1 == "world");
+
+      REQUIRE("world" != variant1);
+      REQUIRE_FALSE("world" == variant1);
+    }
+
+    SECTION("Compare with an identical string") {
+      REQUIRE(variant1 == "hello");
+      REQUIRE_FALSE(variant1 != "hello");
+
+      REQUIRE("hello" == variant1);
+      REQUIRE_FALSE("hello" != variant1);
+    }
   }
+
+  SECTION("Variant contains null") {
+    variant1.clear();
+
+    SECTION("Compare with an integer") {
+      REQUIRE(variant1 != 42);
+      REQUIRE_FALSE(variant1 == 42);
+
+      REQUIRE(42 != variant1);
+      REQUIRE_FALSE(42 == variant1);
+    }
+
+    // SECTION("Compare with NULL") {
+    //   REQUIRE(variant1 == NULL);
+    //   REQUIRE_FALSE(variant1 != NULL);
+
+    //   REQUIRE(NULL == variant1);
+    //   REQUIRE_FALSE(NULL != variant1);
+    // }
+
+    SECTION("Compare with a string") {
+      REQUIRE(variant1 != "world");
+      REQUIRE_FALSE(variant1 == "world");
+
+      REQUIRE("world" != variant1);
+      REQUIRE_FALSE("world" == variant1);
+    }
+  }
+
+  SECTION("Variant contains a positive integer") {
+    variant1.set(42);
+
+    SECTION("Compare with the same integer") {
+      SECTION("Variant on the left") {
+        REQUIRE(variant1 == 42);
+        REQUIRE_FALSE(variant1 != 42);
+
+        REQUIRE(variant1 <= 42);
+        REQUIRE_FALSE(variant1 > 42);
+
+        REQUIRE(variant1 >= 42);
+        REQUIRE_FALSE(variant1 < 42);
+      }
+
+      SECTION("Variant on the right") {
+        REQUIRE(42 == variant1);
+        REQUIRE_FALSE(42 != variant1);
+
+        REQUIRE(42 <= variant1);
+        REQUIRE_FALSE(42 > variant1);
+
+        REQUIRE(42 >= variant1);
+        REQUIRE_FALSE(42 < variant1);
+      }
+    }
+
+    SECTION("Compare with a larger integer") {
+      SECTION("Variant on the left") {
+        REQUIRE_FALSE(variant1 == 43);
+        REQUIRE(variant1 != 43);
+
+        REQUIRE(variant1 <= 43);
+        REQUIRE_FALSE(variant1 > 43);
+
+        REQUIRE_FALSE(variant1 >= 43);
+        REQUIRE(variant1 < 43);
+      }
+
+      SECTION("Variant on the right") {
+        REQUIRE_FALSE(43 == variant1);
+        REQUIRE(43 != variant1);
+
+        REQUIRE_FALSE(43 <= variant1);
+        REQUIRE(43 > variant1);
+
+        REQUIRE(43 >= variant1);
+        REQUIRE_FALSE(43 < variant1);
+      }
+    }
+
+    SECTION("Compare with a smaller integer") {
+      SECTION("Variant on the left") {
+        REQUIRE_FALSE(variant1 == 41);
+        REQUIRE(variant1 != 41);
+
+        REQUIRE_FALSE(variant1 <= 41);
+        REQUIRE(variant1 > 41);
+
+        REQUIRE(variant1 >= 41);
+        REQUIRE_FALSE(variant1 < 41);
+      }
+
+      SECTION("Variant on the right") {
+        REQUIRE_FALSE(41 == variant1);
+        REQUIRE(41 != variant1);
+
+        REQUIRE(41 <= variant1);
+        REQUIRE_FALSE(41 > variant1);
+
+        REQUIRE(43 >= variant1);
+        REQUIRE_FALSE(43 < variant1);
+      }
+    }
+  }
+  // TODO: test variant containing positive and negative integers
 }
