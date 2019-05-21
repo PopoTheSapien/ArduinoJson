@@ -16,6 +16,17 @@ class FlashStringAdapter {
     return strcmp_P(expected, actual) == 0;
   }
 
+  int8_t compare(const char* other) const {
+    if (!other && !_str) return 0;
+    if (!_str) return -1;
+    if (!other) return 1;
+    return -strcmp_P(other, _str);
+  }
+
+  bool equals(const char* expected) const {
+    return compare(expected) == 0;
+  }
+
   bool isNull() const {
     return !_str;
   }
