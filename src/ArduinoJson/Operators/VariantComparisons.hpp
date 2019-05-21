@@ -56,7 +56,9 @@ struct ArithmeticComparer {
     result = sign(-static_cast<T>(value) - comparand);
   }
   void visitPositiveInteger(UInt value) {
-    result = sign(static_cast<T>(value) - comparand);
+    result = static_cast<T>(value) < comparand
+                 ? -1
+                 : static_cast<T>(value) > comparand ? 1 : 0;
   }
   void visitBoolean(bool) {}
   void visitNull() {}
@@ -71,6 +73,14 @@ struct is_simple_value {
 
 template <typename TVariant>
 class VariantComparisons {
+ private:
+  template <typename T>
+  static int8_t compare(TVariant lhs, const T &rhs) {
+    ArithmeticComparer<T> comparer(rhs);
+    lhs.accept(comparer);
+    return comparer.result;
+  }
+
  public:
   // const char* == TVariant
   template <typename T>
@@ -112,18 +122,14 @@ class VariantComparisons {
   template <typename T>
   friend typename enable_if<is_simple_value<T>::value, bool>::type operator==(
       const T &lhs, TVariant rhs) {
-    ArithmeticComparer<T> comparer(lhs);
-    rhs.accept(comparer);
-    return comparer.result == 0;
+    return compare(rhs, lhs) == 0;
   }
 
   // TVariant == bool/int/float
   template <typename T>
   friend typename enable_if<is_simple_value<T>::value, bool>::type operator==(
       TVariant lhs, const T &rhs) {
-    ArithmeticComparer<T> comparer(rhs);
-    lhs.accept(comparer);
-    return comparer.result == 0;
+    return compare(lhs, rhs) == 0;
   }
 
   // const char* != TVariant
@@ -158,70 +164,70 @@ class VariantComparisons {
   template <typename T>
   friend typename enable_if<is_simple_value<T>::value, bool>::type operator!=(
       const T &lhs, TVariant rhs) {
-    return !operator==(lhs, rhs);
+    return compare(rhs, lhs) != 0;
   }
 
   // TVariant != bool/int/float
   template <typename T>
   friend typename enable_if<is_simple_value<T>::value, bool>::type operator!=(
       TVariant lhs, const T &rhs) {
-    return !operator==(lhs, rhs);
+    return compare(lhs, rhs) != 0;
   }
 
   // bool/int/float < TVariant
   template <typename T>
   friend typename enable_if<is_simple_value<T>::value, bool>::type operator<(
       const T &lhs, TVariant rhs) {
-    return lhs < rhs.template as<T>();
+    return compare(rhs, lhs) > 0;
   }
 
   // TVariant < bool/int/float
   template <typename T>
   friend typename enable_if<is_simple_value<T>::value, bool>::type operator<(
       TVariant lhs, const T &rhs) {
-    return lhs.template as<T>() < rhs;
+    return compare(lhs, rhs) < 0;
   }
 
   // bool/int/float <= TVariant
   template <typename T>
   friend typename enable_if<is_simple_value<T>::value, bool>::type operator<=(
       const T &lhs, TVariant rhs) {
-    return lhs <= rhs.template as<T>();
+    return compare(rhs, lhs) >= 0;
   }
 
   // TVariant <= bool/int/float
   template <typename T>
   friend typename enable_if<is_simple_value<T>::value, bool>::type operator<=(
       TVariant lhs, const T &rhs) {
-    return lhs.template as<T>() <= rhs;
+    return compare(lhs, rhs) <= 0;
   }
 
   // bool/int/float > TVariant
   template <typename T>
   friend typename enable_if<is_simple_value<T>::value, bool>::type operator>(
       const T &lhs, TVariant rhs) {
-    return lhs > rhs.template as<T>();
+    return compare(rhs, lhs) < 0;
   }
 
   // TVariant > bool/int/float
   template <typename T>
   friend typename enable_if<is_simple_value<T>::value, bool>::type operator>(
       TVariant lhs, const T &rhs) {
-    return lhs.template as<T>() > rhs;
+    return compare(lhs, rhs) > 0;
   }
 
   // bool/int/float >= TVariant
   template <typename T>
   friend typename enable_if<is_simple_value<T>::value, bool>::type operator>=(
       const T &lhs, TVariant rhs) {
-    return lhs >= rhs.template as<T>();
+    return compare(rhs, lhs) <= 0;
   }
 
   // TVariant >= bool/int/float
   template <typename T>
   friend typename enable_if<is_simple_value<T>::value, bool>::type operator>=(
       TVariant lhs, const T &rhs) {
-    return lhs.template as<T>() >= rhs;
+    return compare(lhs, rhs) >= 0;
   }
 };
 
