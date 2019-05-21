@@ -24,7 +24,7 @@ class StlStringAdapter {
   }
 
   int8_t compare(const char* other) const {
-    if (!other) return false;
+    if (!other) return 1;
     return static_cast<int8_t>(_str->compare(other));
   }
 
