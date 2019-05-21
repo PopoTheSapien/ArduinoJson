@@ -472,10 +472,162 @@ TEST_CASE("JsonVariant comparisons") {
         REQUIRE(41 <= variant1);
         REQUIRE_FALSE(41 > variant1);
 
-        REQUIRE(43 >= variant1);
-        REQUIRE_FALSE(43 < variant1);
+        REQUIRE_FALSE(41 >= variant1);
+        REQUIRE(41 < variant1);
       }
     }
   }
-  // TODO: test variant containing positive and negative integers
+
+  SECTION("Variant contains a negative integer") {
+    variant1.set(-42);
+
+    SECTION("Compare with the same integer") {
+      SECTION("Variant on the left") {
+        REQUIRE(variant1 == -42);
+        REQUIRE_FALSE(variant1 != -42);
+
+        REQUIRE(variant1 <= -42);
+        REQUIRE_FALSE(variant1 > -42);
+
+        REQUIRE(variant1 >= -42);
+        REQUIRE_FALSE(variant1 < -42);
+      }
+
+      SECTION("Variant on the right") {
+        REQUIRE(-42 == variant1);
+        REQUIRE_FALSE(-42 != variant1);
+
+        REQUIRE(-42 <= variant1);
+        REQUIRE_FALSE(-42 > variant1);
+
+        REQUIRE(-42 >= variant1);
+        REQUIRE_FALSE(-42 < variant1);
+      }
+    }
+
+    SECTION("Compare with a larger integer") {
+      SECTION("Variant on the left") {
+        REQUIRE_FALSE(variant1 == -41);
+        REQUIRE(variant1 != -41);
+
+        REQUIRE(variant1 <= -41);
+        REQUIRE_FALSE(variant1 > -41);
+
+        REQUIRE_FALSE(variant1 >= -41);
+        REQUIRE(variant1 < -41);
+      }
+
+      SECTION("Variant on the right") {
+        REQUIRE_FALSE(-41 == variant1);
+        REQUIRE(-41 != variant1);
+
+        REQUIRE_FALSE(-41 <= variant1);
+        REQUIRE(-41 > variant1);
+
+        REQUIRE(-41 >= variant1);
+        REQUIRE_FALSE(-41 < variant1);
+      }
+    }
+
+    SECTION("Compare with a smaller integer") {
+      SECTION("Variant on the left") {
+        REQUIRE_FALSE(variant1 == -43);
+        REQUIRE(variant1 != -43);
+
+        REQUIRE_FALSE(variant1 <= -43);
+        REQUIRE(variant1 > -43);
+
+        REQUIRE(variant1 >= -43);
+        REQUIRE_FALSE(variant1 < -43);
+      }
+
+      SECTION("Variant on the right") {
+        REQUIRE_FALSE(-43 == variant1);
+        REQUIRE(-43 != variant1);
+
+        REQUIRE(-43 <= variant1);
+        REQUIRE_FALSE(-43 > variant1);
+
+        REQUIRE_FALSE(-43 >= variant1);
+        REQUIRE(-43 < variant1);
+      }
+    }
+  }
+}
+
+class VariantComparisionFixture {
+ private:
+  StaticJsonDocument<256> doc;
+  JsonVariant variant;
+
+ public:
+  VariantComparisionFixture() : variant(doc.to<JsonVariant>()) {}
+
+ protected:
+  template <typename T>
+  void setValue(const T& value) {
+    variant.set(value);
+  }
+
+  template <typename T>
+  void assertEqualsTo(const T& value) {
+    REQUIRE(variant == value);
+    REQUIRE(value == variant);
+
+    REQUIRE_FALSE(variant != value);
+    REQUIRE_FALSE(value != variant);
+  }
+
+  template <typename T>
+  void assertDiffersFrom(const T& value) {
+    REQUIRE(variant != value);
+    REQUIRE(value != variant);
+
+    REQUIRE_FALSE(variant == value);
+    REQUIRE_FALSE(value == variant);
+  }
+
+  template <typename T>
+  void assertGreaterThan(const T& value) {
+    REQUIRE(variant > value);
+    REQUIRE(variant >= value);
+    REQUIRE(value < variant);
+    REQUIRE(value <= variant);
+
+    REQUIRE_FALSE(variant < value);
+    REQUIRE_FALSE(variant <= value);
+    REQUIRE_FALSE(value > variant);
+    REQUIRE_FALSE(value >= variant);
+  }
+
+  template <typename T>
+  void assertLowerThan(const T& value) {
+    REQUIRE(variant < value);
+    REQUIRE(variant <= value);
+    REQUIRE(value > variant);
+    REQUIRE(value >= variant);
+
+    REQUIRE_FALSE(variant > value);
+    REQUIRE_FALSE(variant >= value);
+    REQUIRE_FALSE(value < variant);
+    REQUIRE_FALSE(value <= variant);
+  }
+};
+
+TEST_CASE_METHOD(VariantComparisionFixture, "Compare JsonVariant") {
+  SECTION("string") {
+    setValue("hello");
+    assertEqualsTo("hello");
+    assertDiffersFrom(3);
+    assertDiffersFrom("world");
+  }
+
+  SECTION("positive integer") {
+    setValue(42);
+    assertEqualsTo(42);
+    assertDiffersFrom(43);
+    assertGreaterThan(41);
+    assertLowerThan(43);
+    assertDiffersFrom("world");
+  }
 }
