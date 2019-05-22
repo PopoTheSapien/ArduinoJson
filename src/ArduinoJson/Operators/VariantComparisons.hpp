@@ -54,7 +54,7 @@ struct Comparer<T, typename enable_if<is_integral<T>::value ||
   void visitString(const char *) {}
   void visitRawJson(const char *, size_t) {}
   void visitNegativeInteger(UInt lhs) {
-    result = sign(-static_cast<T>(lhs) - rhs);
+    result = -sign(static_cast<T>(lhs) + rhs);
   }
   void visitPositiveInteger(UInt lhs) {
     result = static_cast<T>(lhs) < rhs ? -1 : static_cast<T>(lhs) > rhs ? 1 : 0;
