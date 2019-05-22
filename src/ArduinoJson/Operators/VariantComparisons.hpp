@@ -14,7 +14,7 @@ struct Comparer;
 template <typename T>
 struct Comparer<T, typename enable_if<IsString<T>::value>::type> {
   T rhs;
-  int8_t result;
+  int result;
 
   explicit Comparer(T value) : rhs(value), result(1) {}
 
@@ -22,7 +22,7 @@ struct Comparer<T, typename enable_if<IsString<T>::value>::type> {
   void visitObject(const CollectionData &) {}
   void visitFloat(Float) {}
   void visitString(const char *lhs) {
-    result = static_cast<int8_t>(-adaptString(rhs).compare(lhs));
+    result = -adaptString(rhs).compare(lhs);
   }
   void visitRawJson(const char *, size_t) {}
   void visitNegativeInteger(UInt) {}
@@ -34,7 +34,7 @@ struct Comparer<T, typename enable_if<IsString<T>::value>::type> {
 };
 
 template <typename T>
-int8_t sign(const T &value) {
+int sign(const T &value) {
   return value < 0 ? -1 : value > 0 ? 1 : 0;
 }
 
@@ -42,7 +42,7 @@ template <typename T>
 struct Comparer<T, typename enable_if<is_integral<T>::value ||
                                       is_floating_point<T>::value>::type> {
   T rhs;
-  int8_t result;
+  int result;
 
   explicit Comparer(T value) : rhs(value), result(1) {}
 
@@ -66,7 +66,7 @@ struct Comparer<T, typename enable_if<is_integral<T>::value ||
 template <>
 struct Comparer<bool, void> {
   bool rhs;
-  int8_t result;
+  int result;
 
   explicit Comparer(bool value) : rhs(value), result(1) {}
 
@@ -78,7 +78,7 @@ struct Comparer<bool, void> {
   void visitNegativeInteger(UInt) {}
   void visitPositiveInteger(UInt) {}
   void visitBoolean(bool lhs) {
-    result = static_cast<int8_t>(lhs - rhs);
+    result = static_cast<int>(lhs - rhs);
   }
   void visitNull() {}
 };
@@ -87,7 +87,7 @@ template <typename TVariant>
 class VariantComparisons {
  private:
   template <typename T>
-  static int8_t compare(TVariant lhs, const T &rhs) {
+  static int compare(TVariant lhs, const T &rhs) {
     Comparer<T> comparer(rhs);
     lhs.accept(comparer);
     return comparer.result;
