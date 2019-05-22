@@ -83,20 +83,6 @@ struct Comparer<bool, void> {
   void visitNull() {}
 };
 
-template <typename T>
-struct is_simple_value {
-  static const bool value = is_integral<T>::value ||
-                            is_floating_point<T>::value ||
-                            is_same<T, bool>::value;
-};
-
-template <typename T>
-struct is_supported {
-  static const bool value = IsString<T>::value || is_integral<T>::value ||
-                            is_floating_point<T>::value ||
-                            is_same<T, bool>::value;
-};
-
 template <typename TVariant>
 class VariantComparisons {
  private:
