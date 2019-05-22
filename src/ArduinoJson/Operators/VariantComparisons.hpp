@@ -158,57 +158,49 @@ class VariantComparisons {
 
   // bool/int/float < TVariant
   template <typename T>
-  friend typename enable_if<is_simple_value<T>::value, bool>::type operator<(
-      const T &lhs, TVariant rhs) {
+  friend bool operator<(const T &lhs, TVariant rhs) {
     return compare(rhs, lhs) > 0;
   }
 
   // TVariant < bool/int/float
   template <typename T>
-  friend typename enable_if<is_simple_value<T>::value, bool>::type operator<(
-      TVariant lhs, const T &rhs) {
+  friend bool operator<(TVariant lhs, const T &rhs) {
     return compare(lhs, rhs) < 0;
   }
 
   // bool/int/float <= TVariant
   template <typename T>
-  friend typename enable_if<is_simple_value<T>::value, bool>::type operator<=(
-      const T &lhs, TVariant rhs) {
+  friend bool operator<=(const T &lhs, TVariant rhs) {
     return compare(rhs, lhs) >= 0;
   }
 
   // TVariant <= bool/int/float
   template <typename T>
-  friend typename enable_if<is_simple_value<T>::value, bool>::type operator<=(
-      TVariant lhs, const T &rhs) {
+  friend bool operator<=(TVariant lhs, const T &rhs) {
     return compare(lhs, rhs) <= 0;
   }
 
   // bool/int/float > TVariant
   template <typename T>
-  friend typename enable_if<is_simple_value<T>::value, bool>::type operator>(
-      const T &lhs, TVariant rhs) {
+  friend bool operator>(const T &lhs, TVariant rhs) {
     return compare(rhs, lhs) < 0;
   }
 
   // TVariant > bool/int/float
   template <typename T>
-  friend typename enable_if<is_simple_value<T>::value, bool>::type operator>(
-      TVariant lhs, const T &rhs) {
+  friend bool operator>(TVariant lhs, const T &rhs) {
     return compare(lhs, rhs) > 0;
   }
 
   // bool/int/float >= TVariant
   template <typename T>
-  friend typename enable_if<is_simple_value<T>::value, bool>::type operator>=(
-      const T &lhs, TVariant rhs) {
+  friend bool operator>=(const T &lhs, TVariant rhs) {
     return compare(rhs, lhs) <= 0;
   }
 
   // TVariant >= bool/int/float
   template <typename T>
-  friend typename enable_if<is_simple_value<T>::value, bool>::type operator>=(
-      TVariant lhs, const T &rhs) {
+  friend bool operator>=(TVariant lhs, const T &rhs) {
     return compare(lhs, rhs) >= 0;
   }
 };
