@@ -15,7 +15,7 @@ class SizedFlashStringAdapter {
     if (!other && !_str) return 0;
     if (!_str) return -1;
     if (!other) return 1;
-    return -strncmp_P(other, _str, _size);
+    return -strncmp_P(other, reinterpret_cast<const char*>(_str), _size);
   }
 
   bool equals(const char* expected) const {
