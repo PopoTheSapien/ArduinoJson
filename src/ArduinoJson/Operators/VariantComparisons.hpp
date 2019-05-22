@@ -54,7 +54,7 @@ struct Comparer<T, typename enable_if<is_integral<T>::value ||
   void visitArray(const CollectionData &) {}
   void visitObject(const CollectionData &) {}
   void visitFloat(Float lhs) {
-    result = sign(lhs - rhs);
+    result = sign(lhs - static_cast<Float>(rhs));
   }
   void visitString(const char *) {}
   void visitRawJson(const char *, size_t) {}
