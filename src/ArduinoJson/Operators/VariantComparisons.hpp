@@ -90,6 +90,13 @@ struct is_simple_value {
                             is_same<T, bool>::value;
 };
 
+template <typename T>
+struct is_supported {
+  static const bool value = IsString<T>::value || is_integral<T>::value ||
+                            is_floating_point<T>::value ||
+                            is_same<T, bool>::value;
+};
+
 template <typename TVariant>
 class VariantComparisons {
  private:
@@ -103,15 +110,13 @@ class VariantComparisons {
  public:
   // const char* == TVariant
   template <typename T>
-  friend typename enable_if<IsString<T *>::value, bool>::type operator==(
-      T *lhs, TVariant rhs) {
+  friend bool operator==(T *lhs, TVariant rhs) {
     return compare(rhs, lhs) == 0;
   }
 
   // std::string == TVariant
   template <typename T>
-  friend typename enable_if<IsString<T>::value, bool>::type operator==(
-      const T &lhs, TVariant rhs) {
+  friend bool operator==(const T &lhs, TVariant rhs) {
     return compare(rhs, lhs) == 0;
   }
 
@@ -127,13 +132,6 @@ class VariantComparisons {
   friend typename enable_if<IsString<T>::value, bool>::type operator==(
       TVariant lhs, const T &rhs) {
     return compare(lhs, rhs) == 0;
-  }
-
-  // bool/int/float == TVariant
-  template <typename T>
-  friend typename enable_if<is_simple_value<T>::value, bool>::type operator==(
-      const T &lhs, TVariant rhs) {
-    return compare(rhs, lhs) == 0;
   }
 
   // TVariant == bool/int/float
