@@ -373,13 +373,13 @@ class VariantComparisionFixture {
 
   template <typename T>
   void assertGreaterThan(const T& value) {
-    REQUIRE(variant > value);
-    REQUIRE(variant >= value);
+    REQUIRE((variant > value));
+    REQUIRE((variant >= value));
     REQUIRE(value < variant);
     REQUIRE(value <= variant);
 
-    REQUIRE_FALSE(variant < value);
-    REQUIRE_FALSE(variant <= value);
+    REQUIRE_FALSE((variant < value));
+    REQUIRE_FALSE((variant <= value));
     REQUIRE_FALSE(value > variant);
     REQUIRE_FALSE(value >= variant);
   }
@@ -443,5 +443,9 @@ TEST_CASE_METHOD(VariantComparisionFixture,
     setValue(true);
     assertEqualsTo(true);
     assertDiffersFrom(false);
+    assertDiffersFrom(1);
+    assertDiffersFrom("true");
+    assertDiffersFrom(1.0);
+    assertGreaterThan(false);
   }
 }
