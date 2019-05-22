@@ -114,7 +114,7 @@ class VariantComparisons {
     return compare(rhs, lhs) == 0;
   }
 
-  // std::string == TVariant
+  // string/int/float == TVariant
   template <typename T>
   friend bool operator==(const T &lhs, TVariant rhs) {
     return compare(rhs, lhs) == 0;
@@ -122,22 +122,13 @@ class VariantComparisons {
 
   // TVariant == const char*
   template <typename T>
-  friend typename enable_if<IsString<T *>::value, bool>::type operator==(
-      TVariant lhs, T *rhs) {
+  friend bool operator==(TVariant lhs, T *rhs) {
     return compare(lhs, rhs) == 0;
   }
 
-  // TVariant == std::string
+  // TVariant == string/int/float
   template <typename T>
-  friend typename enable_if<IsString<T>::value, bool>::type operator==(
-      TVariant lhs, const T &rhs) {
-    return compare(lhs, rhs) == 0;
-  }
-
-  // TVariant == bool/int/float
-  template <typename T>
-  friend typename enable_if<is_simple_value<T>::value, bool>::type operator==(
-      TVariant lhs, const T &rhs) {
+  friend bool operator==(TVariant lhs, const T &rhs) {
     return compare(lhs, rhs) == 0;
   }
 
