@@ -34,8 +34,13 @@ struct Comparer<T, typename enable_if<IsString<T>::value>::type> {
 };
 
 template <typename T>
-int sign(const T &value) {
+typename enable_if<is_signed<T>::value, int>::type sign(const T &value) {
   return value < 0 ? -1 : value > 0 ? 1 : 0;
+}
+
+template <typename T>
+typename enable_if<is_unsigned<T>::value, int>::type sign(const T &value) {
+  return value > 0 ? 1 : 0;
 }
 
 template <typename T>
