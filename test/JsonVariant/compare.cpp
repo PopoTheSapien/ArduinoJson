@@ -410,6 +410,8 @@ TEST_CASE_METHOD(VariantComparisionFixture,
     assertEqualsTo("hello");
     assertDiffersFrom(3);
     assertDiffersFrom("world");
+    assertGreaterThan("helln");
+    assertLowerThan("hellp");
   }
 
   SECTION("positive integer") {
