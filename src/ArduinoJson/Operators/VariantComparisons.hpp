@@ -14,22 +14,22 @@ struct Comparer;
 template <typename T>
 struct Comparer<T, typename enable_if<IsString<T>::value>::type> {
   T lhs;
-  bool result;
+  int8_t result;
 
-  explicit Comparer(T value) : lhs(value), result(false) {}
+  explicit Comparer(T value) : lhs(value), result(1) {}
 
   void visitArray(const CollectionData &) {}
   void visitObject(const CollectionData &) {}
   void visitFloat(Float) {}
   void visitString(const char *rhs) {
-    result = adaptString(lhs).equals(rhs);
+    result = adaptString(lhs).compare(rhs);
   }
   void visitRawJson(const char *, size_t) {}
   void visitNegativeInteger(UInt) {}
   void visitPositiveInteger(UInt) {}
   void visitBoolean(bool) {}
   void visitNull() {
-    result = adaptString(lhs).isNull();
+    result = adaptString(lhs).compare(NULL);
   }
 };
 
@@ -105,36 +105,28 @@ class VariantComparisons {
   template <typename T>
   friend typename enable_if<IsString<T *>::value, bool>::type operator==(
       T *lhs, TVariant rhs) {
-    Comparer<T *> comparer(lhs);
-    rhs.accept(comparer);
-    return comparer.result;
+    return compare(rhs, lhs) == 0;
   }
 
   // std::string == TVariant
   template <typename T>
   friend typename enable_if<IsString<T>::value, bool>::type operator==(
       const T &lhs, TVariant rhs) {
-    Comparer<const T &> comparer(lhs);
-    rhs.accept(comparer);
-    return comparer.result;
+    return compare(rhs, lhs) == 0;
   }
 
   // TVariant == const char*
   template <typename T>
   friend typename enable_if<IsString<T *>::value, bool>::type operator==(
       TVariant lhs, T *rhs) {
-    Comparer<T *> comparer(rhs);
-    lhs.accept(comparer);
-    return comparer.result;
+    return compare(lhs, rhs) == 0;
   }
 
   // TVariant == std::string
   template <typename T>
   friend typename enable_if<IsString<T>::value, bool>::type operator==(
       TVariant lhs, const T &rhs) {
-    Comparer<const T &> comparer(rhs);
-    lhs.accept(comparer);
-    return comparer.result;
+    return compare(lhs, rhs) == 0;
   }
 
   // bool/int/float == TVariant
@@ -155,28 +147,28 @@ class VariantComparisons {
   template <typename T>
   friend typename enable_if<IsString<T *>::value, bool>::type operator!=(
       T *lhs, TVariant rhs) {
-    return !operator==(lhs, rhs);
+    return compare(rhs, lhs) != 0;
   }
 
   // std::string != TVariant
   template <typename T>
   friend typename enable_if<IsString<T>::value, bool>::type operator!=(
       const T &lhs, TVariant rhs) {
-    return !operator==(lhs, rhs);
+    return compare(rhs, lhs) != 0;
   }
 
   // TVariant != const char*
   template <typename T>
   friend typename enable_if<IsString<T *>::value, bool>::type operator!=(
       TVariant lhs, T *rhs) {
-    return !operator==(lhs, rhs);
+    return compare(lhs, rhs) != 0;
   }
 
   // TVariant != std::string
   template <typename T>
   friend typename enable_if<IsString<T>::value, bool>::type operator!=(
       TVariant lhs, const T &rhs) {
-    return !operator==(lhs, rhs);
+    return compare(lhs, rhs) != 0;
   }
 
   // bool/int/float != TVariant
